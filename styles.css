@@ -1,0 +1,120 @@
+/* Connections Helper Extension Styles */
+
+/* Color classes for the cards */
+.connections-helper-yellow:not([class*="Card-module_selected"]) {
+  background-color: #f9df6d !important;
+  border: 2px solid #d4c41a !important;
+  color: #333 !important;
+}
+
+.connections-helper-green:not([class*="Card-module_selected"]) {
+  background-color: #a0c35a !important;
+  border: 2px solid #4a8612 !important;
+  color: white !important;
+}
+
+.connections-helper-blue:not([class*="Card-module_selected"]) {
+  background-color: #b0c4ef !important;
+  border: 2px solid #5a8bc4 !important;
+  color: white !important;
+}
+
+.connections-helper-purple:not([class*="Card-module_selected"]) {
+  background-color: #ba81c5 !important;
+  border: 2px solid #8a426f !important;
+  color: white !important;
+}
+
+.connections-helper-pink:not([class*="Card-module_selected"]) {
+  background-color: #ffc1cc !important;
+  border: 2px solid #ffaab5 !important;
+  color: #333 !important;
+}
+
+.connections-helper-orange:not([class*="Card-module_selected"]) {
+  background-color: #ffcba4 !important;
+  border: 2px solid #ffb885 !important;
+  color: #333 !important;
+}
+
+.connections-helper-cyan:not([class*="Card-module_selected"]) {
+  background-color: #a4e4ff !important;
+  border: 2px solid #85d9ff !important;
+  color: #333 !important;
+}
+
+.connections-helper-lavender:not([class*="Card-module_selected"]) {
+  background-color: #d4a4ff !important;
+  border: 2px solid #c285ff !important;
+  color: #333 !important;
+}
+
+/* Drag and drop styles */
+.connections-helper-dragging {
+  opacity: 0.5 !important;
+  transform: scale(0.95) !important;
+  transition: all 0.2s ease !important;
+}
+
+.connections-helper-drag-over {
+  border: 2px dashed #666 !important;
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Reset button styles */
+.connections-helper-reset-btn {
+  /* position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 10000 !important;
+  background: #4a90e2 !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+  transition: background 0.3s ease !important;
+  */
+  min-width: 8em !important;
+}
+
+/*.connections-helper-reset-btn:hover {
+  background: #357abd !important;
+}*/
+
+/* Status indicator */
+.connections-helper-status {
+  position: fixed !important;
+  top: 70px !important;
+  right: 20px !important;
+  z-index: 10000 !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  font-size: 12px !important;
+  display: none !important;
+}
+
+.connections-helper-status.show {
+  display: block !important;
+}
+
+/* Enhance the original cards for better dragging */
+label[data-testid="card-label"] {
+  cursor: grab !important;
+  user-select: none !important;
+  transition: all 0.2s ease !important;
+}
+
+/*label[data-testid="card-label"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}*/
+
+label[data-testid="card-label"]:active {
+  cursor: grabbing !important;
+}
