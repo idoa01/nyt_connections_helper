@@ -19,11 +19,53 @@ class ConnectionsHelper {
 
   init() {
     console.log('🎮 NY Times Connections Helper initialized');
+    this.checkGameDate();
     this.setupDragAndDrop();
     this.storeOriginalOrder();
     this.addResetButton();
     this.addStatusIndicator();
     this.setupClassObserver();
+    this.restoreTargetFromStorage();
+    this.restoreColorsFromStorage(); // Restore saved card colors
+    this.restoreOrderFromStorage(); // Restore saved card order
+  }
+  
+  // Check if game date has changed and clear stored data if needed
+  checkGameDate() {
+    const dateElement = document.querySelector('#portal-game-date span');
+    if (dateElement) {
+      const currentDate = dateElement.textContent.trim();
+      const storedDate = sessionStorage.getItem('connections-helper-game-date');
+      
+      console.log('📅 Current game date:', currentDate, 'Stored date:', storedDate);
+      
+      if (storedDate && storedDate !== currentDate) {
+        // Date changed, clear stored target
+        console.log('📅 Game date changed. Clearing stored targets, colors, and card order.');
+        sessionStorage.removeItem('connections-helper-target-id');
+        sessionStorage.removeItem('connections-helper-target-text');
+        sessionStorage.removeItem('connections-helper-card-colors');
+        sessionStorage.removeItem('connections-helper-card-order');
+        // Clear stored colors too
+        this.cardColors.clear();
+      }
+      
+      // Update stored date
+      sessionStorage.setItem('connections-helper-game-date', currentDate);
+    }
+  }
+
+  // Restore the current target from sessionStorage
+  restoreTargetFromStorage() {
+    const targetId = sessionStorage.getItem('connections-helper-target-id');
+    if (targetId) {
+      const target = document.querySelector(`label[for="${targetId}"]`);
+      if (target) {
+        this.currentTarget = target;
+        console.log('🔄 Restored target from sessionStorage:', 
+                   sessionStorage.getItem('connections-helper-target-text'));
+      }
+    }
   }
 
   // Store the original order of cards based on 'for' attribute
@@ -112,13 +154,19 @@ class ConnectionsHelper {
           this.swapCards(draggedCard, card);
           this.showStatus('Cards swapped!');
         }
-        
+        draggedCard.firstChild.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
         this.clearDragStyles();
       });
 
       // Store right-click target for context menu
       card.addEventListener('contextmenu', (e) => {
         this.currentTarget = card;
+        // Also store the card ID in sessionStorage for persistence
+        const cardId = card.getAttribute('for');
+        const cardText = card.textContent.trim();
+        sessionStorage.setItem('connections-helper-target-id', cardId);
+        sessionStorage.setItem('connections-helper-target-text', cardText);
+        console.log('🎯 Right-clicked on card:', cardText, 'with ID:', cardId);
       });
     });
   }
@@ -153,6 +201,9 @@ class ConnectionsHelper {
     // Restore color classes after swapping
     this.setColorClasses(card1, card1Colors);
     this.setColorClasses(card2, card2Colors);
+    
+    // Save the new order to storage
+    this.saveOrderToStorage();
   }
 
   // Get all color classes from a card
@@ -190,6 +241,9 @@ class ConnectionsHelper {
     const cardId = card.getAttribute('for');
     this.cardColors.set(cardId, color);
     
+    // Save colors to sessionStorage for persistence
+    this.saveColorsToStorage();
+    
     const colorName = color.charAt(0).toUpperCase() + color.slice(1);
     this.showStatus(`Card colored ${colorName}!`);
   }
@@ -218,6 +272,99 @@ class ConnectionsHelper {
     });
   }
 
+  // Save card colors to sessionStorage
+  saveColorsToStorage() {
+    const colorData = {};
+    this.cardColors.forEach((color, cardId) => {
+      colorData[cardId] = color;
+    });
+    
+    if (Object.keys(colorData).length > 0) {
+      sessionStorage.setItem('connections-helper-card-colors', JSON.stringify(colorData));
+      console.log('💾 Saved colors for', Object.keys(colorData).length, 'cards to storage');
+    }
+  }
+  
+  // Restore card colors from sessionStorage
+  restoreColorsFromStorage() {
+    const storedColors = sessionStorage.getItem('connections-helper-card-colors');
+    
+    if (storedColors) {
+      try {
+        const colorData = JSON.parse(storedColors);
+        
+        // Restore colors to the cardColors Map
+        Object.entries(colorData).forEach(([cardId, color]) => {
+          this.cardColors.set(cardId, color);
+        });
+        
+        console.log('🎨 Restored colors for', Object.keys(colorData).length, 'cards');
+        
+        // Apply colors to actual DOM elements
+        const cards = document.querySelectorAll('label[data-testid="card-label"]');
+        cards.forEach(card => {
+          const cardId = card.getAttribute('for');
+          if (this.cardColors.has(cardId)) {
+            const color = this.cardColors.get(cardId);
+            // Remove any existing color classes first
+            Object.keys(this.colors).forEach(c => {
+              card.classList.remove(`connections-helper-${c}`);
+            });
+            // Add the stored color class
+            card.classList.add(`connections-helper-${color}`);
+          }
+        });
+      } catch (error) {
+        console.error('❌ Error restoring card colors:', error);
+      }
+    }
+  }
+
+  // Save current card order to sessionStorage
+  saveOrderToStorage() {
+    const cards = document.querySelectorAll('label[data-testid="card-label"]');
+    const currentOrder = Array.from(cards).map(card => card.getAttribute('for'));
+    
+    sessionStorage.setItem('connections-helper-card-order', JSON.stringify(currentOrder));
+    console.log('💾 Saved current card order to storage');
+  }
+  
+  // Restore card order from sessionStorage
+  restoreOrderFromStorage() {
+    const storedOrder = sessionStorage.getItem('connections-helper-card-order');
+    
+    if (storedOrder) {
+      try {
+        const orderData = JSON.parse(storedOrder);
+        const parent = document.querySelector('label[data-testid="card-label"]')?.parentNode;
+        
+        if (!parent || orderData.length === 0) return;
+        
+        console.log('🔄 Restoring card order from storage');
+        
+        // Get all current cards
+        const cards = Array.from(document.querySelectorAll('label[data-testid="card-label"]'));
+        
+        // Sort cards based on the stored order
+        const sortedCards = cards.sort((a, b) => {
+          const aIndex = orderData.indexOf(a.getAttribute('for'));
+          const bIndex = orderData.indexOf(b.getAttribute('for'));
+          // If card is not in stored order, put it at the end
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          return aIndex - bIndex;
+        });
+        
+        // Re-append cards in correct order
+        sortedCards.forEach(card => parent.appendChild(card));
+        
+        console.log('✅ Card order restored successfully');
+      } catch (error) {
+        console.error('❌ Error restoring card order:', error);
+      }
+    }
+  }
+
   // Reset cards to original order
   resetOrder() {
     const parent = document.querySelector('label[data-testid="card-label"]')?.parentNode;
@@ -234,21 +381,61 @@ class ConnectionsHelper {
     // Re-append cards in correct order
     sortedCards.forEach(card => parent.appendChild(card));
     
+    // Save the original order to storage
+    this.saveOrderToStorage();
+    
     this.showStatus('Order reset to original!');
     console.log('🔄 Cards reset to original order');
   }
 
   // Clear all colors
   clearColors() {
+    // First, temporarily disable the observer to prevent auto-restoration
+    const classObservers = this.disableClassObservers();
+    
+    // Now clear colors from DOM elements
     const cards = document.querySelectorAll('label[data-testid="card-label"]');
     cards.forEach(card => {
       Object.keys(this.colors).forEach(color => {
         card.classList.remove(`connections-helper-${color}`);
       });
     });
-    // Clear stored colors
+    
+    // Clear stored colors from Map
     this.cardColors.clear();
+    
+    // Remove from sessionStorage
+    sessionStorage.removeItem('connections-helper-card-colors');
+    
+    // Re-enable observers after a small delay to ensure changes are complete
+    setTimeout(() => {
+      this.enableClassObservers(classObservers);
+      console.log('🔄 Class observers re-enabled after color clearing');
+    }, 100);
+    
     this.showStatus('All colors cleared!');
+  }
+
+  // Find the current target card, either from instance or from sessionStorage
+  findTargetCard() {
+    let target = this.currentTarget;
+    
+    // If current target is null, try to retrieve from sessionStorage
+    if (!target) {
+      const targetId = sessionStorage.getItem('connections-helper-target-id');
+      if (targetId) {
+        target = document.querySelector(`label[for="${targetId}"]`);
+        console.log('📋 Retrieved target from sessionStorage:', 
+                   sessionStorage.getItem('connections-helper-target-text'));
+        
+        // Update the instance's currentTarget for future use
+        if (target) {
+          this.currentTarget = target;
+        }
+      }
+    }
+    
+    return target;
   }
 }
 
@@ -290,8 +477,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   switch (request.action) {
     case 'colorElement':
-      if (connectionsHelper.currentTarget) {
-        connectionsHelper.colorCard(connectionsHelper.currentTarget, request.color);
+      const target = connectionsHelper.findTargetCard();
+      
+      if (target) {
+        connectionsHelper.colorCard(target, request.color);
+        target.firstChild.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+      } else {
+        console.log('⚠️ No target found for coloring');
       }
       break;
     case 'resetOrder':
