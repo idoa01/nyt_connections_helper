@@ -250,24 +250,29 @@ class ConnectionsHelper {
 
   // Setup observer to watch for class changes on cards
   setupClassObserver() {
-    const classObserver = new MutationObserver((mutations) => {
-      mutations.forEach(mutation => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          const card = mutation.target;
-          const cardId = card.getAttribute('for');
-
-          // If this card had a stored color and no longer has color classes
-          if (this.cardColors.has(cardId) && this.getColorClasses(card).length === 0) {
-            const storedColor = this.cardColors.get(cardId);
-            // Re-apply the stored color
-            card.classList.add(`connections-helper-${storedColor}`);
-          }
-        }
-      });
-    });
-
     const cards = document.querySelectorAll('label[data-testid="card-label"]');
     cards.forEach(card => {
+        // Create a new observer for this card
+        const classObserver = new MutationObserver((mutations) => {
+          mutations.forEach(mutation => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              const card = mutation.target;
+              const cardId = card.getAttribute('for');
+
+              // If this card had a stored color and no longer has color classes
+              if (this.cardColors.has(cardId) && this.getColorClasses(card).length === 0) {
+                const storedColor = this.cardColors.get(cardId);
+                // Re-apply the stored color
+                card.classList.add(`connections-helper-${storedColor}`);
+              }
+            }
+          });
+        });
+        
+        // Store the observer on the card element for later access
+        card._classObserver = classObserver;
+        
+        // Start observing
         classObserver.observe(card, { attributes: true, attributeFilter: ['class'] });
     });
   }
@@ -414,6 +419,43 @@ class ConnectionsHelper {
     }, 100);
     
     this.showStatus('All colors cleared!');
+  }
+  
+  // Disable class observers and return them for later re-enabling
+  disableClassObservers() {
+    const cards = document.querySelectorAll('label[data-testid="card-label"]');
+    const observers = [];
+    
+    // We need to create a new observer for each card and store the existing one
+    cards.forEach(card => {
+      // Store the current observer in the DOM element for retrieval
+      const observer = card._classObserver;
+      if (observer) {
+        observer.disconnect();
+        observers.push({ card, observer });
+      }
+    });
+    
+    console.log('🛑 Disabled class observers for color clearing');
+    return observers;
+  }
+  
+  // Re-enable previously disabled class observers
+  enableClassObservers(observers) {
+    if (!observers || !observers.length) {
+      // If no observers were disabled, set up new ones
+      this.setupClassObserver();
+      return;
+    }
+    
+    // Re-connect each observer to its card
+    observers.forEach(({ card, observer }) => {
+      if (card && observer) {
+        observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+      }
+    });
+    
+    console.log('✅ Re-enabled', observers.length, 'class observers');
   }
 
   // Find the current target card, either from instance or from sessionStorage
