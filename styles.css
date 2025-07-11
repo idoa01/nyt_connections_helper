@@ -4,49 +4,49 @@
 .connections-helper-yellow:not([class*="Card-module_selected"]) {
   background-color: #f9df6d !important;
   border: 2px solid #d4c41a !important;
-  color: #333 !important;
+  color: #121212 !important;
 }
 
 .connections-helper-green:not([class*="Card-module_selected"]) {
   background-color: #a0c35a !important;
   border: 2px solid #4a8612 !important;
-  color: white !important;
+  color: #121212 !important;
 }
 
 .connections-helper-blue:not([class*="Card-module_selected"]) {
   background-color: #b0c4ef !important;
   border: 2px solid #5a8bc4 !important;
-  color: white !important;
+  color: #121212 !important;
 }
 
 .connections-helper-purple:not([class*="Card-module_selected"]) {
   background-color: #ba81c5 !important;
   border: 2px solid #8a426f !important;
-  color: white !important;
+  color: #121212 !important;
 }
 
 .connections-helper-pink:not([class*="Card-module_selected"]) {
   background-color: #ffc1cc !important;
   border: 2px solid #ffaab5 !important;
-  color: #333 !important;
+  color: #121212 !important;
 }
 
 .connections-helper-orange:not([class*="Card-module_selected"]) {
   background-color: #ffcba4 !important;
   border: 2px solid #ffb885 !important;
-  color: #333 !important;
+  color: #121212 !important;
 }
 
 .connections-helper-cyan:not([class*="Card-module_selected"]) {
   background-color: #a4e4ff !important;
   border: 2px solid #85d9ff !important;
-  color: #333 !important;
+  color: #121212 !important;
 }
 
 .connections-helper-lavender:not([class*="Card-module_selected"]) {
   background-color: #d4a4ff !important;
   border: 2px solid #c285ff !important;
-  color: #333 !important;
+  color: #121212 !important;
 }
 
 /* Drag and drop styles */
@@ -107,7 +107,7 @@
 label[data-testid="card-label"] {
   cursor: grab !important;
   user-select: none !important;
-  transition: all 0.2s ease !important;
+  /*transition: all 0.2s ease !important;*/
 }
 
 /*label[data-testid="card-label"]:hover {
