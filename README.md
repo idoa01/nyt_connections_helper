@@ -33,7 +33,7 @@ A Chrome extension that enhances the NY Times Connections game with color coding
 ### Color Coding Cards
 1. Right-click on any card
 2. Select "Color Code" from the context menu
-3. Choose from 8 available colors
+3. Choose from 8 available colors or "Clear" to remove color from a specific card
 4. Cards will be highlighted with your chosen color
 
 ### Reordering Cards
@@ -43,7 +43,8 @@ A Chrome extension that enhances the NY Times Connections game with color coding
 
 ### Reset & Clear
 - **Reset Order**: Right-click → "Reset to Original Order"
-- **Clear Colors**: Right-click → "Clear All Colors"
+- **Clear Individual Color**: Right-click card → "Color Code" → "Clear"
+- **Clear All Colors**: Right-click → "Clear All Colors"
 - **Reset Button**: Fixed button in top-right corner
 
 ## Color Scheme
@@ -66,16 +67,18 @@ A Chrome extension that enhances the NY Times Connections game with color coding
 - **Target URL**: https://www.nytimes.com/games/connections*
 - **Target Elements**: `label[data-testid="card-label"]`
 - **Permissions**: activeTab, contextMenus
+- **Persistence**: Uses sessionStorage to retain state across page refreshes
+- **Game Date Detection**: Automatically detects game date changes to reset saved data
 
 ## Files Structure
 
 ```
 ├── manifest.json       # Extension configuration
 ├── background.js       # Context menu and message handling
-├── content.js         # Main functionality injected into page
-├── styles.css         # Styling for colors and UI
-├── popup.html         # Extension popup interface
-└── README.md          # This file
+├── content.js          # Main functionality injected into page
+├── styles.css          # Styling for colors and UI
+├── popup.html          # Extension popup interface
+└── README.md           # This file
 ```
 
 ## Browser Support
@@ -91,6 +94,28 @@ This extension:
 - ✅ Stores no personal data
 - ✅ Makes no external requests
 - ✅ Only modifies page appearance locally
+- ✅ Uses sessionStorage to save preferences (cleared when you close the browser)
+
+## Implementation Details
+
+### Class Structure
+- Uses a main `ConnectionsHelper` class with methods for:
+  - Card color management (including individual card color clearing)
+  - Drag and drop implementation
+  - Order management and restoration
+  - MutationObserver for monitoring card state changes
+
+### State Management
+- Card colors are stored in a Map and sessionStorage
+- Card order is tracked and can be restored
+- Target card for coloring is remembered between clicks
+- Game date tracking prevents stale data between daily puzzles
+
+### Color Management
+- Colors can be applied to individual cards through context menu
+- Individual card colors can be cleared without affecting other cards
+- All colors can be cleared at once with the "Clear All Colors" option
+- Card colors persist across page refreshes via sessionStorage
 
 ## Troubleshooting
 
@@ -109,6 +134,11 @@ This extension:
 2. Check if extension is enabled
 3. Reload the extension
 
+**Color not applying correctly?**
+1. Try right-clicking the card again
+2. Check console for error messages
+3. Try using the Clear Colors option and start fresh
+
 ## Future Enhancements
 
 - [ ] Save color schemes between sessions
@@ -116,6 +146,7 @@ This extension:
 - [ ] Keyboard shortcuts for common actions
 - [ ] Undo/redo functionality
 - [ ] Multiple color schemes
+- [ ] Improved animation compatibility
 
 ---
 
