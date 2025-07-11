@@ -78,7 +78,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
   transition: background 0.3s ease !important;
   */
-  min-width: 8em !important;
+  min-width: 9em !important;
 }
 
 /*.connections-helper-reset-btn:hover {
