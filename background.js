@@ -9,7 +9,8 @@ chrome.runtime.onInstalled.addListener(() => {
     { id: 'pink', title: '🩷 Light Pink', color: '#ffc1cc' },
     { id: 'orange', title: '🧡 Light Orange', color: '#ffcba4' },
     { id: 'cyan', title: '🩵 Light Cyan', color: '#a4e4ff' },
-    { id: 'lavender', title: '💜 Light Lavender', color: '#d4a4ff' }
+    { id: 'lavender', title: '💜 Light Lavender', color: '#d4a4ff' },
+    { id: 'clear', title: '⚪ Clear Color', color: '#ffffff' }
   ];
 
   chrome.contextMenus.create({

@@ -233,14 +233,20 @@ class ConnectionsHelper {
     Object.keys(this.colors).forEach(c => {
       card.classList.remove(`connections-helper-${c}`);
     });
-    
-    // Add new color class
-    card.classList.add(`connections-helper-${color}`);
+
+    if (color !== 'clear') {
+      // Add new color class
+      card.classList.add(`connections-helper-${color}`);
+    }
 
     // Store the color for this card
     const cardId = card.getAttribute('for');
-    this.cardColors.set(cardId, color);
-    
+    if (color !== 'clear') {
+      this.cardColors.set(cardId, color);
+    } else {
+      this.cardColors.delete(cardId);
+    }
+
     // Save colors to sessionStorage for persistence
     this.saveColorsToStorage();
     
@@ -284,10 +290,10 @@ class ConnectionsHelper {
       colorData[cardId] = color;
     });
     
-    if (Object.keys(colorData).length > 0) {
-      sessionStorage.setItem('connections-helper-card-colors', JSON.stringify(colorData));
-      console.log('💾 Saved colors for', Object.keys(colorData).length, 'cards to storage');
-    }
+    //if (Object.keys(colorData).length > 0) {
+    sessionStorage.setItem('connections-helper-card-colors', JSON.stringify(colorData));
+    console.log('💾 Saved colors for', Object.keys(colorData).length, 'cards to storage');
+    //}
   }
   
   // Restore card colors from sessionStorage
