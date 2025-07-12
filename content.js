@@ -154,11 +154,6 @@ class ConnectionsHelper {
         this.hideCustomMenu();
         if (this.currentTarget) {
           this.colorCard(this.currentTarget, color.id);
-          if (this.currentTarget.firstChild) {
-            this.currentTarget.firstChild.dispatchEvent(
-              new KeyboardEvent('keydown', { key: ' ', bubbles: true })
-            );
-          }
         }
       });
       
@@ -202,6 +197,10 @@ class ConnectionsHelper {
       if (card) {
         e.preventDefault();
         this.currentTarget = card;
+        // Deselect card
+        this.currentTarget.firstChild.dispatchEvent(
+          new KeyboardEvent('keydown', { key: ' ', bubbles: true })
+        );
         
         // Store target in sessionStorage
         const cardId = card.getAttribute('for');
