@@ -1,6 +1,24 @@
 // Content script for NY Times Connections Helper
 class ConnectionsHelper {
+  // Static instance property to hold the singleton
+  static instance = null;
+  
+  // Static getInstance method to get the singleton instance
+  static getInstance() {
+    if (!ConnectionsHelper.instance) {
+      ConnectionsHelper.instance = new ConnectionsHelper();
+    }
+    return ConnectionsHelper.instance;
+  }
+  
+  // Private constructor - should only be called from getInstance()
   constructor() {
+    // Prevent multiple instances if constructor is called directly
+    if (ConnectionsHelper.instance) {
+      console.warn('ConnectionsHelper already exists! Use ConnectionsHelper.getInstance()');
+      return ConnectionsHelper.instance;
+    }
+    
     this.originalOrder = [];
     this.currentTarget = null;
     this.cardColors = new Map(); // Store card colors by 'for' attribute
@@ -14,6 +32,11 @@ class ConnectionsHelper {
       cyan: '#a4e4ff',
       lavender: '#d4a4ff'
     };
+    
+    // Set this instance as the singleton instance
+    ConnectionsHelper.instance = this;
+    
+    // Initialize the helper
     this.init();
   }
 
@@ -648,7 +671,6 @@ class ConnectionsHelper {
 }
 
 // Initialize the extension
-let connectionsHelper = null;
 let initialized = false;
 
 // Wait for page to load
@@ -666,7 +688,8 @@ function initializeHelper() {
   setTimeout(() => {
     const gameCards = document.querySelectorAll('label[data-testid="card-label"]');
     if (gameCards.length > 0) {
-      connectionsHelper = new ConnectionsHelper();
+      // Use the getInstance method to get the singleton instance
+      ConnectionsHelper.getInstance();
       initialized = true;
       console.log('✅ NY Times Connections Helper initialized');
     } else {
@@ -678,27 +701,31 @@ function initializeHelper() {
 
 // Listen for messages from background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (!connectionsHelper) {
+  // Check if the helper has been initialized
+  if (!initialized) {
     console.log('⚠️ Helper not initialized yet');
     return;
   }
 
+  // Get the singleton instance
+  const helper = ConnectionsHelper.getInstance();
+  
   switch (request.action) {
     case 'colorElement':
-      const target = connectionsHelper.findTargetCard();
+      const target = helper.findTargetCard();
       
       if (target) {
-        connectionsHelper.colorCard(target, request.color);
+        helper.colorCard(target, request.color);
         target.firstChild.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
       } else {
         console.log('⚠️ No target found for coloring');
       }
       break;
     case 'resetOrder':
-      connectionsHelper.resetOrder();
+      helper.resetOrder();
       break;
     case 'clearColors':
-      connectionsHelper.clearColors();
+      helper.clearColors();
       break;
   }
 });
@@ -707,20 +734,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 const observer = new MutationObserver((mutations) => {
   const gameCards = document.querySelectorAll('label[data-testid="card-label"]');
   if (gameCards.length > 0) {
-    if (!connectionsHelper) {
-      connectionsHelper = new ConnectionsHelper();
+    if (!initialized) {
+      // Use the getInstance method to get or create the singleton instance
+      ConnectionsHelper.getInstance();
       initialized = true;
       console.log('🔄 NY Times Connections Helper re-initialized');
-    } else if (initialized) {
-      // If we already have an instance, just refresh the drag and drop functionality
+    } else {
+      // If already initialized, just refresh the drag and drop functionality
       // This ensures we have event listeners on any new cards
-      connectionsHelper.setupDragAndDrop();
+      ConnectionsHelper.getInstance().setupDragAndDrop();
       console.log('🔄 Refreshed drag and drop functionality');
     }
   } else {
     // Game might have unloaded
     initialized = false;
-    connectionsHelper = null;
+    
+    // Reset the singleton instance
+    ConnectionsHelper.instance = null;
   }
 });
 
