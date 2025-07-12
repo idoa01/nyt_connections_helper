@@ -292,6 +292,41 @@ class ConnectionsHelper {
         background-color: #f0f0f0;
       }
       
+      /* Color transition styles */
+      label[data-testid="card-label"] {
+        transition: background-color 0.5s ease, box-shadow 0.5s ease;
+      }
+      
+      label[data-testid="card-label"].color-transition {
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      }
+      
+      /* Add background-color transitions for each color class */
+      label.connections-helper-yellow {
+        background-color: #f9df6d !important;
+      }
+      label.connections-helper-green {
+        background-color: #a0c35a !important;
+      }
+      label.connections-helper-blue {
+        background-color: #b0c4ef !important;
+      }
+      label.connections-helper-purple {
+        background-color: #ba81c5 !important;
+      }
+      label.connections-helper-pink {
+        background-color: #ffc1cc !important;
+      }
+      label.connections-helper-orange {
+        background-color: #ffcba4 !important;
+      }
+      label.connections-helper-cyan {
+        background-color: #a4e4ff !important;
+      }
+      label.connections-helper-lavender {
+        background-color: #d4a4ff !important;
+      }
+      
       /* Styles for the swap colors popup */
       .swap-colors-popup {
         position: fixed;
@@ -896,32 +931,55 @@ class ConnectionsHelper {
     
     console.log(`🔄 Swapping colors: ${sourceColor} (${sourceCards.length} cards) ↔ ${targetColor} (${targetCards.length} cards)`);
     
-    // Swap colors in DOM
-    sourceCards.forEach(card => {
-      card.classList.remove(`connections-helper-${sourceColor}`);
-      card.classList.add(`connections-helper-${targetColor}`);
+    // Add transition class to all affected cards
+    sourceCards.forEach(card => card.classList.add('color-transition'));
+    targetCards.forEach(card => card.classList.add('color-transition'));
+    
+    // Create a promise-based delay function
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    
+    // Use an async function to handle the transition with delays
+    (async () => {
+      // First step: Remove original colors
+      sourceCards.forEach(card => {
+        card.classList.remove(`connections-helper-${sourceColor}`);
+      });
       
-      // Update stored color in Map
-      const cardId = card.getAttribute('for');
-      this.cardColors.set(cardId, targetColor);
-    });
-    
-    targetCards.forEach(card => {
-      card.classList.remove(`connections-helper-${targetColor}`);
-      card.classList.add(`connections-helper-${sourceColor}`);
+      targetCards.forEach(card => {
+        card.classList.remove(`connections-helper-${targetColor}`);
+      });
       
-      // Update stored color in Map
-      const cardId = card.getAttribute('for');
-      this.cardColors.set(cardId, sourceColor);
-    });
-    
-    // Save updated colors to storage
-    this.saveColorsToStorage();
-    
-    // Re-enable observers
-    setTimeout(() => {
+      // Wait a moment for the transition to be visible
+      await delay(50);
+      
+      // Second step: Add new colors
+      sourceCards.forEach(card => {
+        card.classList.add(`connections-helper-${targetColor}`);
+        // Update stored color in Map
+        const cardId = card.getAttribute('for');
+        this.cardColors.set(cardId, targetColor);
+      });
+      
+      targetCards.forEach(card => {
+        card.classList.add(`connections-helper-${sourceColor}`);
+        // Update stored color in Map
+        const cardId = card.getAttribute('for');
+        this.cardColors.set(cardId, sourceColor);
+      });
+      
+      // Wait for the transition to complete
+      await delay(600);
+      
+      // Remove transition class
+      sourceCards.forEach(card => card.classList.remove('color-transition'));
+      targetCards.forEach(card => card.classList.remove('color-transition'));
+      
+      // Save updated colors to storage
+      this.saveColorsToStorage();
+      
+      // Re-enable observers
       this.enableClassObservers(classObservers);
-    }, 100);
+    })();
   }
 
   // Clear all colors
