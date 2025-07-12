@@ -25,6 +25,7 @@ class ConnectionsHelper {
     this.addResetButton();
     this.addStatusIndicator();
     this.setupClassObserver();
+    this.createCustomContextMenu(); // Add custom context menu
     this.restoreTargetFromStorage();
     this.restoreColorsFromStorage(); // Restore saved card colors
     this.restoreOrderFromStorage(); // Restore saved card order
@@ -110,6 +111,166 @@ class ConnectionsHelper {
     }
   }
 
+  // Create custom context menu
+  createCustomContextMenu() {
+    // Check if custom menu already exists
+    if (document.getElementById('connections-custom-menu')) return;
+
+    // Create the menu container
+    const menu = document.createElement('div');
+    menu.id = 'connections-custom-menu';
+    menu.className = 'connections-custom-menu';
+    menu.style.display = 'none';
+    
+    // Define color options - matching those in background.js
+    const colors = [
+      { id: 'yellow', title: '🟡 Yellow (Easy)', color: '#f9df6d' },
+      { id: 'green', title: '🟢 Green (Medium)', color: '#a0c35a' },
+      { id: 'blue', title: '🔵 Blue (Hard)', color: '#b0c4ef' },
+      { id: 'purple', title: '🟣 Purple (Hardest)', color: '#ba81c5' },
+      { id: 'pink', title: '🩷 Light Pink', color: '#ffc1cc' },
+      { id: 'orange', title: '🧡 Light Orange', color: '#ffcba4' },
+      { id: 'cyan', title: '🩵 Light Cyan', color: '#a4e4ff' },
+      { id: 'lavender', title: '💜 Light Lavender', color: '#d4a4ff' },
+      { id: 'clear', title: '⚪ Clear Color', color: '#ffffff' }
+    ];
+    
+    // Create color submenu
+    const colorSection = document.createElement('div');
+    colorSection.className = 'menu-section';
+    
+    const colorTitle = document.createElement('div');
+    colorTitle.className = 'menu-section-title';
+    colorTitle.textContent = 'Color Code';
+    colorSection.appendChild(colorTitle);
+    
+    colors.forEach(color => {
+      const option = document.createElement('div');
+      option.className = 'menu-item';
+      option.textContent = color.title;
+      option.style.borderLeft = `4px solid ${color.color}`;
+      
+      option.addEventListener('click', () => {
+        this.hideCustomMenu();
+        if (this.currentTarget) {
+          this.colorCard(this.currentTarget, color.id);
+          if (this.currentTarget.firstChild) {
+            this.currentTarget.firstChild.dispatchEvent(
+              new KeyboardEvent('keydown', { key: ' ', bubbles: true })
+            );
+          }
+        }
+      });
+      
+      colorSection.appendChild(option);
+    });
+    
+    menu.appendChild(colorSection);
+    
+    // Create utilities section
+    const utilSection = document.createElement('div');
+    utilSection.className = 'menu-section';
+    
+    // Reset order option
+    const resetOption = document.createElement('div');
+    resetOption.className = 'menu-item';
+    resetOption.textContent = '🔄 Reset to Original Order';
+    resetOption.addEventListener('click', () => {
+      this.hideCustomMenu();
+      this.resetOrder();
+    });
+    utilSection.appendChild(resetOption);
+    
+    // Clear colors option
+    const clearOption = document.createElement('div');
+    clearOption.className = 'menu-item';
+    clearOption.textContent = '🧹 Clear All Colors';
+    clearOption.addEventListener('click', () => {
+      this.hideCustomMenu();
+      this.clearColors();
+    });
+    utilSection.appendChild(clearOption);
+    
+    menu.appendChild(utilSection);
+    
+    // Append the menu to the body
+    document.body.appendChild(menu);
+    
+    // Setup event listener for right clicks
+    document.addEventListener('contextmenu', (e) => {
+      const card = e.target.closest('label[data-testid="card-label"]');
+      if (card) {
+        e.preventDefault();
+        this.currentTarget = card;
+        
+        // Store target in sessionStorage
+        const cardId = card.getAttribute('for');
+        const cardText = card.textContent.trim();
+        sessionStorage.setItem('connections-helper-target-id', cardId);
+        sessionStorage.setItem('connections-helper-target-text', cardText);
+        console.log('🎯 Right-clicked on card:', cardText, 'with ID:', cardId);
+        
+        // Position and show the menu
+        menu.style.top = `${e.pageY}px`;
+        menu.style.left = `${e.pageX}px`;
+        menu.style.display = 'block';
+      }
+    });
+    
+    // Hide menu when clicking elsewhere
+    document.addEventListener('click', () => {
+      this.hideCustomMenu();
+    });
+    
+    // Add CSS for the menu
+    const style = document.createElement('style');
+    style.textContent = `
+      .connections-custom-menu {
+        position: absolute;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        padding: 4px 0;
+        z-index: 1000;
+        min-width: 200px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .menu-section {
+        padding: 4px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .menu-section:last-child {
+        border-bottom: none;
+      }
+      .menu-section-title {
+        padding: 6px 12px;
+        font-weight: bold;
+        color: #555;
+        font-size: 13px;
+      }
+      .menu-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        white-space: nowrap;
+        transition: background-color 0.2s;
+      }
+      .menu-item:hover {
+        background-color: #f0f0f0;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  // Hide custom context menu
+  hideCustomMenu() {
+    const menu = document.getElementById('connections-custom-menu');
+    if (menu) {
+      menu.style.display = 'none';
+    }
+  }
+
   // Setup drag and drop functionality
   setupDragAndDrop() {
     const cards = document.querySelectorAll('label[data-testid="card-label"]');
@@ -158,16 +319,16 @@ class ConnectionsHelper {
         this.clearDragStyles();
       });
 
-      // Store right-click target for context menu
-      card.addEventListener('contextmenu', (e) => {
-        this.currentTarget = card;
-        // Also store the card ID in sessionStorage for persistence
-        const cardId = card.getAttribute('for');
-        const cardText = card.textContent.trim();
-        sessionStorage.setItem('connections-helper-target-id', cardId);
-        sessionStorage.setItem('connections-helper-target-text', cardText);
-        console.log('🎯 Right-clicked on card:', cardText, 'with ID:', cardId);
-      });
+      // Remove native right-click handler since we're using our custom menu
+      // card.addEventListener('contextmenu', (e) => {
+      //   this.currentTarget = card;
+      //   // Also store the card ID in sessionStorage for persistence
+      //   const cardId = card.getAttribute('for');
+      //   const cardText = card.textContent.trim();
+      //   sessionStorage.setItem('connections-helper-target-id', cardId);
+      //   sessionStorage.setItem('connections-helper-target-text', cardText);
+      //   console.log('🎯 Right-clicked on card:', cardText, 'with ID:', cardId);
+      // });
     });
   }
 

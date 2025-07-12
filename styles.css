@@ -1,4 +1,4 @@
-/* Connections Helper Extension Styles */
+/* Styles for NY Times Connections Helper */
 
 /* Color classes for the cards */
 .connections-helper-yellow:not([class*="Card-module_selected"]) {
@@ -49,71 +49,95 @@
   color: #121212 !important;
 }
 
-/* Drag and drop styles */
-.connections-helper-dragging {
-  opacity: 0.5 !important;
-  transform: scale(0.95) !important;
-  transition: all 0.2s ease !important;
+/* Drag and Drop Styles */
+label.connections-helper-dragging {
+  opacity: 0.6;
+  transform: scale(1.05);
+  transition: opacity 0.2s, transform 0.2s;
 }
 
-.connections-helper-drag-over {
-  border: 2px dashed #666 !important;
+label.connections-helper-drag-over {
+  border: 2px dashed #888 !important;
   background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Reset button styles */
-.connections-helper-reset-btn {
-  /* position: fixed !important;
-  top: 20px !important;
-  right: 20px !important;
-  z-index: 10000 !important;
-  background: #4a90e2 !important;
-  color: white !important;
-  border: none !important;
-  padding: 10px 20px !important;
-  border-radius: 5px !important;
-  cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: bold !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
-  transition: background 0.3s ease !important;
-  */
-  min-width: 9em !important;
-}
-
-/*.connections-helper-reset-btn:hover {
-  background: #357abd !important;
-}*/
-
-/* Status indicator */
+/* Status Indicator */
 .connections-helper-status {
-  position: fixed !important;
-  top: 70px !important;
-  right: 20px !important;
-  z-index: 10000 !important;
-  background: rgba(0, 0, 0, 0.8) !important;
-  color: white !important;
-  padding: 8px 16px !important;
-  border-radius: 4px !important;
-  font-size: 12px !important;
-  display: none !important;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .connections-helper-status.show {
-  display: block !important;
+  opacity: 1;
+}
+
+/* Reset Button */
+.connections-helper-reset-btn {
+  min-width: 9em !important;
+}
+
+/* Custom Context Menu */
+.connections-custom-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+  padding: 6px 0;
+  z-index: 10000;
+  min-width: 220px;
+  max-width: 280px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+.menu-section {
+  padding: 4px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.menu-section:last-child {
+  border-bottom: none;
+}
+
+.menu-section-title {
+  padding: 6px 12px;
+  font-weight: 600;
+  color: #555;
+  font-size: 13px;
+}
+
+.menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
 }
 
 /* Enhance the original cards for better dragging */
 label[data-testid="card-label"] {
   cursor: grab !important;
   user-select: none !important;
-  /*transition: all 0.2s ease !important;*/
 }
 
-/*label[data-testid="card-label"]:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}*/
 
 label[data-testid="card-label"]:active {
   cursor: grabbing !important;
