@@ -185,9 +185,19 @@ class ConnectionsHelper {
     
     menu.appendChild(colorSection);
     
-    // Create utilities section
+    // Create utilities section with the swap colors option
     const utilSection = document.createElement('div');
     utilSection.className = 'menu-section';
+    
+    // Swap colors option
+    const swapOption = document.createElement('div');
+    swapOption.className = 'menu-item';
+    swapOption.textContent = '🔄 Swap Colors';
+    swapOption.addEventListener('click', () => {
+      this.hideCustomMenu();
+      this.showSwapColorsPopup(colors.slice(0, 8)); // Exclude "Clear Color" option
+    });
+    utilSection.appendChild(swapOption);
     
     // Reset order option
     const resetOption = document.createElement('div');
@@ -281,8 +291,301 @@ class ConnectionsHelper {
       .menu-item:hover {
         background-color: #f0f0f0;
       }
+      
+      /* Styles for the swap colors popup */
+      .swap-colors-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        padding: 16px;
+        z-index: 1100;
+        width: 320px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .swap-popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+      }
+      .swap-popup-title {
+        font-weight: bold;
+        font-size: 16px;
+        color: #333;
+      }
+      .swap-popup-close {
+        cursor: pointer;
+        font-size: 18px;
+        color: #999;
+        border: none;
+        background: transparent;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      .swap-popup-close:hover {
+        color: #555;
+        background-color: #f0f0f0;
+      }
+      .swap-popup-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .color-select-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .color-select-label {
+        font-weight: 500;
+        color: #555;
+        font-size: 14px;
+      }
+      .color-select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background: white;
+        font-size: 14px;
+        appearance: menulist-button;
+      }
+      .swap-popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+        gap: 8px;
+      }
+      .swap-popup-button {
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .swap-popup-cancel {
+        background-color: #f0f0f0;
+        color: #666;
+      }
+      .swap-popup-cancel:hover {
+        background-color: #e0e0e0;
+      }
+      .swap-popup-confirm {
+        background-color: #4a8cf7;
+        color: white;
+      }
+      .swap-popup-confirm:hover {
+        background-color: #3a7ce7;
+      }
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1050;
+        backdrop-filter: blur(2px);
+      }
     `;
     document.head.appendChild(style);
+    
+    // Create the swap colors popup (hidden by default)
+    this.createSwapColorsPopup();
+  }
+  
+  // Create the swap colors popup
+  createSwapColorsPopup() {
+    // Check if popup already exists
+    if (document.getElementById('swap-colors-popup')) return;
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'swap-colors-overlay';
+    overlay.className = 'popup-overlay';
+    overlay.style.display = 'none';
+    
+    // Create popup container
+    const popup = document.createElement('div');
+    popup.id = 'swap-colors-popup';
+    popup.className = 'swap-colors-popup';
+    popup.style.display = 'none';
+    
+    // Create header
+    const header = document.createElement('div');
+    header.className = 'swap-popup-header';
+    
+    const title = document.createElement('div');
+    title.className = 'swap-popup-title';
+    title.textContent = 'Swap Colors';
+    
+    const closeButton = document.createElement('button');
+    closeButton.className = 'swap-popup-close';
+    closeButton.textContent = '✕';
+    closeButton.setAttribute('aria-label', 'Close');
+    closeButton.onclick = () => this.hideSwapColorsPopup();
+    
+    header.appendChild(title);
+    header.appendChild(closeButton);
+    
+    // Create content
+    const content = document.createElement('div');
+    content.className = 'swap-popup-content';
+    
+    // Source color selector
+    const sourceGroup = document.createElement('div');
+    sourceGroup.className = 'color-select-group';
+    
+    const sourceLabel = document.createElement('label');
+    sourceLabel.className = 'color-select-label';
+    sourceLabel.textContent = 'Source Color';
+    sourceLabel.setAttribute('for', 'source-color-select');
+    
+    const sourceSelect = document.createElement('select');
+    sourceSelect.id = 'source-color-select';
+    sourceSelect.className = 'color-select';
+    // Options will be added when the popup is shown
+    
+    sourceGroup.appendChild(sourceLabel);
+    sourceGroup.appendChild(sourceSelect);
+    
+    // Target color selector
+    const targetGroup = document.createElement('div');
+    targetGroup.className = 'color-select-group';
+    
+    const targetLabel = document.createElement('label');
+    targetLabel.className = 'color-select-label';
+    targetLabel.textContent = 'Target Color';
+    targetLabel.setAttribute('for', 'target-color-select');
+    
+    const targetSelect = document.createElement('select');
+    targetSelect.id = 'target-color-select';
+    targetSelect.className = 'color-select';
+    // Options will be added when the popup is shown
+    
+    targetGroup.appendChild(targetLabel);
+    targetGroup.appendChild(targetSelect);
+    
+    content.appendChild(sourceGroup);
+    content.appendChild(targetGroup);
+    
+    // Create actions
+    const actions = document.createElement('div');
+    actions.className = 'swap-popup-actions';
+    
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'swap-popup-button swap-popup-cancel';
+    cancelButton.textContent = 'Cancel';
+    cancelButton.onclick = () => this.hideSwapColorsPopup();
+    
+    const confirmButton = document.createElement('button');
+    confirmButton.className = 'swap-popup-button swap-popup-confirm';
+    confirmButton.textContent = 'Swap';
+    confirmButton.onclick = () => this.executeColorSwap();
+    
+    actions.appendChild(cancelButton);
+    actions.appendChild(confirmButton);
+    
+    // Assemble popup
+    popup.appendChild(header);
+    popup.appendChild(content);
+    popup.appendChild(actions);
+    
+    // Add to document
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+  }
+  
+  // Show swap colors popup with color options
+  showSwapColorsPopup(colors) {
+    const popup = document.getElementById('swap-colors-popup');
+    const overlay = document.getElementById('swap-colors-overlay');
+    const sourceSelect = document.getElementById('source-color-select');
+    const targetSelect = document.getElementById('target-color-select');
+    
+    if (!popup || !overlay || !sourceSelect || !targetSelect) {
+      console.error('❌ Swap colors popup elements not found');
+      return;
+    }
+    
+    // Clear existing options
+    sourceSelect.innerHTML = '';
+    targetSelect.innerHTML = '';
+    
+    // Add options to both selects
+    colors.forEach(color => {
+      const sourceOption = document.createElement('option');
+      sourceOption.value = color.id;
+      sourceOption.textContent = color.title;
+      sourceOption.style.background = color.color;
+      sourceSelect.appendChild(sourceOption);
+      
+      const targetOption = document.createElement('option');
+      targetOption.value = color.id;
+      targetOption.textContent = color.title;
+      targetOption.style.background = color.color;
+      targetSelect.appendChild(targetOption);
+    });
+    
+    // Set second option as default for target (to avoid same selection)
+    if (targetSelect.options.length > 1) {
+      targetSelect.selectedIndex = 1;
+    }
+    
+    // Show popup and overlay
+    popup.style.display = 'block';
+    overlay.style.display = 'block';
+    
+    // Close popup when clicking overlay
+    overlay.onclick = () => this.hideSwapColorsPopup();
+    
+    // Prevent closing when clicking popup itself
+    popup.onclick = (e) => e.stopPropagation();
+  }
+  
+  // Hide swap colors popup
+  hideSwapColorsPopup() {
+    const popup = document.getElementById('swap-colors-popup');
+    const overlay = document.getElementById('swap-colors-overlay');
+    
+    if (popup) popup.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
+  }
+  
+  // Execute color swap based on selected values
+  executeColorSwap() {
+    const sourceSelect = document.getElementById('source-color-select');
+    const targetSelect = document.getElementById('target-color-select');
+    
+    if (!sourceSelect || !targetSelect) {
+      console.error('❌ Color select elements not found');
+      return;
+    }
+    
+    const sourceColor = sourceSelect.value;
+    const targetColor = targetSelect.value;
+    
+    if (sourceColor === targetColor) {
+      this.showStatus("Can't swap a color with itself!", 2000);
+      return;
+    }
+    
+    this.swapCardColors(sourceColor, targetColor);
+    this.hideSwapColorsPopup();
+    
+    const sourceText = sourceSelect.options[sourceSelect.selectedIndex].textContent;
+    const targetText = targetSelect.options[targetSelect.selectedIndex].textContent;
+    
+    this.showStatus(`Swapped ${sourceText} with ${targetText}`, 3000);
   }
   
   // Hide custom context menu
@@ -580,6 +883,45 @@ class ConnectionsHelper {
     
     this.showStatus('Order reset to original!');
     console.log('🔄 Cards reset to original order');
+  }
+
+  // Swap colors between all cards of two colors
+  swapCardColors(sourceColor, targetColor) {
+    // Temporarily disable observers to prevent flickering
+    const classObservers = this.disableClassObservers();
+    
+    // Get all cards with source and target colors
+    const sourceCards = document.querySelectorAll(`label.connections-helper-${sourceColor}`);
+    const targetCards = document.querySelectorAll(`label.connections-helper-${targetColor}`);
+    
+    console.log(`🔄 Swapping colors: ${sourceColor} (${sourceCards.length} cards) ↔ ${targetColor} (${targetCards.length} cards)`);
+    
+    // Swap colors in DOM
+    sourceCards.forEach(card => {
+      card.classList.remove(`connections-helper-${sourceColor}`);
+      card.classList.add(`connections-helper-${targetColor}`);
+      
+      // Update stored color in Map
+      const cardId = card.getAttribute('for');
+      this.cardColors.set(cardId, targetColor);
+    });
+    
+    targetCards.forEach(card => {
+      card.classList.remove(`connections-helper-${targetColor}`);
+      card.classList.add(`connections-helper-${sourceColor}`);
+      
+      // Update stored color in Map
+      const cardId = card.getAttribute('for');
+      this.cardColors.set(cardId, sourceColor);
+    });
+    
+    // Save updated colors to storage
+    this.saveColorsToStorage();
+    
+    // Re-enable observers
+    setTimeout(() => {
+      this.enableClassObservers(classObservers);
+    }, 100);
   }
 
   // Clear all colors
