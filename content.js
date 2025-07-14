@@ -391,9 +391,43 @@ class ConnectionsHelper {
       targetSelect.appendChild(targetOption);
     });
     
-    // Set second option as default for target (to avoid same selection)
-    if (targetSelect.options.length > 1) {
-      targetSelect.selectedIndex = 1;
+    // Determine the color of the current target card
+    let currentCardColor = null;
+    if (this.currentTarget) {
+      // Check which color class the current target has
+      for (const colorId of Object.keys(this.colors)) {
+        if (this.currentTarget.classList.contains(`connections-helper-${colorId}`)) {
+          currentCardColor = colorId;
+          break;
+        }
+      }
+    }
+    
+    // Set source color to the color of the current card if available
+    if (currentCardColor) {
+      for (let i = 0; i < sourceSelect.options.length; i++) {
+        if (sourceSelect.options[i].value === currentCardColor) {
+          sourceSelect.selectedIndex = i;
+          break;
+        }
+      }
+      
+      // Set target to a different color
+      const sourceIndex = sourceSelect.selectedIndex;
+      
+      // Find the next valid color that's not the same as source
+      let targetIndex = (sourceIndex + 1) % colors.length;
+      if (targetIndex === sourceIndex) {
+        targetIndex = (targetIndex + 1) % colors.length;
+      }
+      
+      targetSelect.selectedIndex = targetIndex;
+    } else {
+      // Default behavior if no color is found
+      // Set second option as default for target (to avoid same selection)
+      if (targetSelect.options.length > 1) {
+        targetSelect.selectedIndex = 1;
+      }
     }
     
     // Show popup and overlay
