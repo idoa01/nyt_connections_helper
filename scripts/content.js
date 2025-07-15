@@ -135,231 +135,125 @@ class ConnectionsHelper {
   }
 
   // Create custom context menu
-  createCustomContextMenu() {
+  async createCustomContextMenu() {
     // Check if custom menu already exists
     if (document.getElementById('connections-custom-menu')) return;
-
-    // Create the menu container
-    const menu = document.createElement('div');
-    menu.id = 'connections-custom-menu';
-    menu.className = 'connections-custom-menu';
-    menu.style.display = 'none';
     
-    // Define color options - matching those in background.js
-    const colors = [
-      { id: 'yellow', title: '🟡 Yellow (Easy)', color: '#f9df6d' },
-      { id: 'green', title: '🟢 Green (Medium)', color: '#a0c35a' },
-      { id: 'blue', title: '🔵 Blue (Hard)', color: '#b0c4ef' },
-      { id: 'purple', title: '🟣 Purple (Hardest)', color: '#ba81c5' },
-      { id: 'pink', title: '🩷 Light Pink', color: '#ffc1cc' },
-      { id: 'orange', title: '🧡 Light Orange', color: '#ffcba4' },
-      { id: 'cyan', title: '🩵 Light Cyan', color: '#a4e4ff' },
-      { id: 'lavender', title: '💜 Light Lavender', color: '#d4a4ff' },
-      { id: 'clear', title: '⚪ Clear Color', color: '#ffffff' }
-    ];
-    
-    // Create color submenu
-    const colorSection = document.createElement('div');
-    colorSection.className = 'menu-section';
-    
-    const colorTitle = document.createElement('div');
-    colorTitle.className = 'menu-section-title';
-    colorTitle.textContent = 'Color Code';
-    colorSection.appendChild(colorTitle);
-    
-    colors.forEach(color => {
-      const option = document.createElement('div');
-      option.className = 'menu-item';
-      option.textContent = color.title;
-      option.style.borderLeft = `4px solid ${color.color}`;
+    try {
+      // Load menu template from HTML file
+      const templateResponse = await fetch(chrome.runtime.getURL('templates/context-menu.html'));
+      const templateHTML = await templateResponse.text();
       
-      option.addEventListener('click', () => {
+      // Create a temporary container to hold the HTML
+      const tempContainer = document.createElement('div');
+      tempContainer.innerHTML = templateHTML;
+      
+      // Add the elements to the document
+      while (tempContainer.firstChild) {
+        document.body.appendChild(tempContainer.firstChild);
+      }
+      
+      // Get references to the menu and popup elements
+      const menu = document.getElementById('connections-custom-menu');
+      const colorOptionsContainer = document.getElementById('color-options-container');
+      const swapColorsButton = document.getElementById('swap-colors');
+      const resetOrderButton = document.getElementById('reset-order');
+      const clearColorsButton = document.getElementById('clear-colors');
+      const swapPopupCloseButton = document.querySelector('.swap-popup-close');
+      const swapPopupCancelButton = document.querySelector('.swap-popup-cancel');
+      const swapPopupConfirmButton = document.querySelector('.swap-popup-confirm');
+      const overlay = document.getElementById('swap-colors-overlay');
+      
+      // Define color options - matching those in background.js
+      const colors = [
+        { id: 'yellow', title: '🟡 Yellow (Easy)', color: '#f9df6d' },
+        { id: 'green', title: '🟢 Green (Medium)', color: '#a0c35a' },
+        { id: 'blue', title: '🔵 Blue (Hard)', color: '#b0c4ef' },
+        { id: 'purple', title: '🟣 Purple (Hardest)', color: '#ba81c5' },
+        { id: 'pink', title: '🩷 Light Pink', color: '#ffc1cc' },
+        { id: 'orange', title: '🧡 Light Orange', color: '#ffcba4' },
+        { id: 'cyan', title: '🩵 Light Cyan', color: '#a4e4ff' },
+        { id: 'lavender', title: '💜 Light Lavender', color: '#d4a4ff' },
+        { id: 'clear', title: '⚪ Clear Color', color: '#ffffff' }
+      ];
+      
+      // Dynamically add color options to the menu
+      colors.forEach(color => {
+        const option = document.createElement('div');
+        option.className = 'menu-item';
+        option.textContent = color.title;
+        option.style.borderLeft = `4px solid ${color.color}`;
+        
+        option.addEventListener('click', () => {
+          this.hideCustomMenu();
+          if (this.currentTarget) {
+            this.colorCard(this.currentTarget, color.id);
+          }
+        });
+        
+        colorOptionsContainer.appendChild(option);
+      });
+      
+      // Add event listeners for utility buttons
+      swapColorsButton.addEventListener('click', () => {
         this.hideCustomMenu();
-        if (this.currentTarget) {
-          this.colorCard(this.currentTarget, color.id);
+        this.showSwapColorsPopup(colors.slice(0, 8)); // Exclude "Clear Color" option
+      });
+      
+      resetOrderButton.addEventListener('click', () => {
+        this.hideCustomMenu();
+        this.resetOrder();
+      });
+      
+      clearColorsButton.addEventListener('click', () => {
+        this.hideCustomMenu();
+        this.clearColors();
+      });
+      
+      // Add event listeners for swap popup
+      swapPopupCloseButton.addEventListener('click', () => this.hideSwapColorsPopup());
+      swapPopupCancelButton.addEventListener('click', () => this.hideSwapColorsPopup());
+      swapPopupConfirmButton.addEventListener('click', () => this.executeColorSwap());
+      
+      // Setup event listener for right clicks
+      document.addEventListener('contextmenu', (e) => {
+        const card = e.target.closest('label[data-testid="card-label"]');
+        if (card) {
+          e.preventDefault();
+          this.currentTarget = card;
+          // Deselect card
+          this.currentTarget.firstChild.dispatchEvent(
+            new KeyboardEvent('keydown', { key: ' ', bubbles: true })
+          );
+          
+          // Store target in sessionStorage
+          const cardId = card.getAttribute('for');
+          const cardText = card.textContent.trim();
+          sessionStorage.setItem('connections-helper-target-id', cardId);
+          sessionStorage.setItem('connections-helper-target-text', cardText);
+          console.log('🎯 Right-clicked on card:', cardText, 'with ID:', cardId);
+          
+          // Position and show the menu
+          menu.style.top = `${e.pageY}px`;
+          menu.style.left = `${e.pageX}px`;
+          menu.style.display = 'block';
         }
       });
       
-      colorSection.appendChild(option);
-    });
-    
-    menu.appendChild(colorSection);
-    
-    // Create utilities section with the swap colors option
-    const utilSection = document.createElement('div');
-    utilSection.className = 'menu-section';
-    
-    // Swap colors option
-    const swapOption = document.createElement('div');
-    swapOption.className = 'menu-item';
-    swapOption.textContent = '🔄 Swap Colors';
-    swapOption.addEventListener('click', () => {
-      this.hideCustomMenu();
-      this.showSwapColorsPopup(colors.slice(0, 8)); // Exclude "Clear Color" option
-    });
-    utilSection.appendChild(swapOption);
-    
-    // Reset order option
-    const resetOption = document.createElement('div');
-    resetOption.className = 'menu-item';
-    resetOption.textContent = '🔄 Reset to Original Order';
-    resetOption.addEventListener('click', () => {
-      this.hideCustomMenu();
-      this.resetOrder();
-    });
-    utilSection.appendChild(resetOption);
-    
-    // Clear colors option
-    const clearOption = document.createElement('div');
-    clearOption.className = 'menu-item';
-    clearOption.textContent = '🧹 Clear All Colors';
-    clearOption.addEventListener('click', () => {
-      this.hideCustomMenu();
-      this.clearColors();
-    });
-    utilSection.appendChild(clearOption);
-    
-    menu.appendChild(utilSection);
-    
-    // Append the menu to the body
-    document.body.appendChild(menu);
-    
-    // Setup event listener for right clicks
-    document.addEventListener('contextmenu', (e) => {
-      const card = e.target.closest('label[data-testid="card-label"]');
-      if (card) {
-        e.preventDefault();
-        this.currentTarget = card;
-        // Deselect card
-        this.currentTarget.firstChild.dispatchEvent(
-          new KeyboardEvent('keydown', { key: ' ', bubbles: true })
-        );
-        
-        // Store target in sessionStorage
-        const cardId = card.getAttribute('for');
-        const cardText = card.textContent.trim();
-        sessionStorage.setItem('connections-helper-target-id', cardId);
-        sessionStorage.setItem('connections-helper-target-text', cardText);
-        console.log('🎯 Right-clicked on card:', cardText, 'with ID:', cardId);
-        
-        // Position and show the menu
-        menu.style.top = `${e.pageY}px`;
-        menu.style.left = `${e.pageX}px`;
-        menu.style.display = 'block';
-      }
-    });
-    
-    // Hide menu when clicking elsewhere
-    document.addEventListener('click', () => {
-      this.hideCustomMenu();
-    });
-    
-    // Create the swap colors popup (hidden by default)
-    this.createSwapColorsPopup();
+      // Hide menu when clicking elsewhere
+      document.addEventListener('click', () => {
+        this.hideCustomMenu();
+      });
+      
+      // Add overlay click handler
+      overlay.addEventListener('click', () => this.hideSwapColorsPopup());
+      
+      console.log('✅ Context menu template loaded and initialized');
+    } catch (error) {
+      console.error('❌ Error loading context menu template:', error);
+    }
   }
-  
-  // Create the swap colors popup
-  createSwapColorsPopup() {
-    // Check if popup already exists
-    if (document.getElementById('swap-colors-popup')) return;
     
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'swap-colors-overlay';
-    overlay.className = 'popup-overlay';
-    overlay.style.display = 'none';
-    
-    // Create popup container
-    const popup = document.createElement('div');
-    popup.id = 'swap-colors-popup';
-    popup.className = 'swap-colors-popup';
-    popup.style.display = 'none';
-    
-    // Create header
-    const header = document.createElement('div');
-    header.className = 'swap-popup-header';
-    
-    const title = document.createElement('div');
-    title.className = 'swap-popup-title';
-    title.textContent = 'Swap Colors';
-    
-    const closeButton = document.createElement('button');
-    closeButton.className = 'swap-popup-close';
-    closeButton.textContent = '✕';
-    closeButton.setAttribute('aria-label', 'Close');
-    closeButton.onclick = () => this.hideSwapColorsPopup();
-    
-    header.appendChild(title);
-    header.appendChild(closeButton);
-    
-    // Create content
-    const content = document.createElement('div');
-    content.className = 'swap-popup-content';
-    
-    // Source color selector
-    const sourceGroup = document.createElement('div');
-    sourceGroup.className = 'color-select-group';
-    
-    const sourceLabel = document.createElement('label');
-    sourceLabel.className = 'color-select-label';
-    sourceLabel.textContent = 'Source Color';
-    sourceLabel.setAttribute('for', 'source-color-select');
-    
-    const sourceSelect = document.createElement('select');
-    sourceSelect.id = 'source-color-select';
-    sourceSelect.className = 'color-select';
-    // Options will be added when the popup is shown
-    
-    sourceGroup.appendChild(sourceLabel);
-    sourceGroup.appendChild(sourceSelect);
-    
-    // Target color selector
-    const targetGroup = document.createElement('div');
-    targetGroup.className = 'color-select-group';
-    
-    const targetLabel = document.createElement('label');
-    targetLabel.className = 'color-select-label';
-    targetLabel.textContent = 'Target Color';
-    targetLabel.setAttribute('for', 'target-color-select');
-    
-    const targetSelect = document.createElement('select');
-    targetSelect.id = 'target-color-select';
-    targetSelect.className = 'color-select';
-    // Options will be added when the popup is shown
-    
-    targetGroup.appendChild(targetLabel);
-    targetGroup.appendChild(targetSelect);
-    
-    content.appendChild(sourceGroup);
-    content.appendChild(targetGroup);
-    
-    // Create actions
-    const actions = document.createElement('div');
-    actions.className = 'swap-popup-actions';
-    
-    const cancelButton = document.createElement('button');
-    cancelButton.className = 'swap-popup-button swap-popup-cancel';
-    cancelButton.textContent = 'Cancel';
-    cancelButton.onclick = () => this.hideSwapColorsPopup();
-    
-    const confirmButton = document.createElement('button');
-    confirmButton.className = 'swap-popup-button swap-popup-confirm';
-    confirmButton.textContent = 'Swap';
-    confirmButton.onclick = () => this.executeColorSwap();
-    
-    actions.appendChild(cancelButton);
-    actions.appendChild(confirmButton);
-    
-    // Assemble popup
-    popup.appendChild(header);
-    popup.appendChild(content);
-    popup.appendChild(actions);
-    
-    // Add to document
-    document.body.appendChild(overlay);
-    document.body.appendChild(popup);
-  }
-  
   // Show swap colors popup with color options
   showSwapColorsPopup(colors) {
     const popup = document.getElementById('swap-colors-popup');

@@ -1,0 +1,46 @@
+<div id="connections-custom-menu" class="connections-custom-menu" style="display: none;">
+  <!-- Color section -->
+  <div class="menu-section">
+    <div class="menu-section-title">Color Code</div>
+    <!-- Color options will be inserted here dynamically -->
+    <div id="color-options-container"></div>
+  </div>
+  
+  <!-- Utilities section -->
+  <div class="menu-section">
+    <div id="swap-colors" class="menu-item">🔄 Swap Colors</div>
+    <div id="reset-order" class="menu-item">🔄 Reset to Original Order</div>
+    <div id="clear-colors" class="menu-item">🧹 Clear All Colors</div>
+  </div>
+</div>
+
+<!-- Swap Colors Popup Template -->
+<div id="swap-colors-popup" class="swap-colors-popup" style="display: none;">
+  <div class="swap-popup-header">
+    <div class="swap-popup-title">Swap Colors</div>
+    <button class="swap-popup-close" aria-label="Close">✕</button>
+  </div>
+  
+  <div class="swap-popup-content">
+    <div class="color-select-group">
+      <label for="source-color-select" class="color-select-label">Source Color</label>
+      <select id="source-color-select" class="color-select">
+        <!-- Options will be added dynamically -->
+      </select>
+    </div>
+    
+    <div class="color-select-group">
+      <label for="target-color-select" class="color-select-label">Target Color</label>
+      <select id="target-color-select" class="color-select">
+        <!-- Options will be added dynamically -->
+      </select>
+    </div>
+  </div>
+  
+  <div class="swap-popup-actions">
+    <button class="swap-popup-button swap-popup-cancel">Cancel</button>
+    <button class="swap-popup-button swap-popup-confirm">Swap</button>
+  </div>
+</div>
+
+<div id="swap-colors-overlay" class="popup-overlay" style="display: none;"></div>
