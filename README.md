@@ -8,6 +8,7 @@ A Chrome extension that enhances the NY Times Connections game with color coding
 - **NY Times Theme Colors**: Yellow (Easy), Green (Medium), Blue (Hard), Purple (Hardest)
 - **Additional Pastel Colors**: Light Pink, Light Orange, Light Cyan, Light Lavender
 - Right-click any card to assign colors via context menu
+- **Color Swapping**: Easily swap all cards of one color with another
 
 ### 🔄 Drag & Drop
 - Click and drag cards to reorder them
@@ -35,6 +36,14 @@ A Chrome extension that enhances the NY Times Connections game with color coding
 2. Select "Color Code" from the context menu
 3. Choose from 8 available colors or "Clear" to remove color from a specific card
 4. Cards will be highlighted with your chosen color
+
+### Swapping Colors Between Groups
+1. Right-click on any card
+2. Select "Swap Colors" from the context menu
+3. A popup will appear with two dropdown menus
+4. The source color will automatically be set to the color of the card you right-clicked (if it has one)
+5. Select a target color from the second dropdown
+6. Click "Swap" to exchange colors between all cards in both groups
 
 ### Reordering Cards
 1. Click and drag any card to a new position
@@ -69,6 +78,7 @@ A Chrome extension that enhances the NY Times Connections game with color coding
 - **Permissions**: activeTab, contextMenus
 - **Persistence**: Uses sessionStorage to retain state across page refreshes
 - **Game Date Detection**: Automatically detects game date changes to reset saved data
+- **Animations**: Smooth CSS transitions when swapping colors between groups
 
 ## Files Structure
 
@@ -104,18 +114,22 @@ This extension:
   - Drag and drop implementation
   - Order management and restoration
   - MutationObserver for monitoring card state changes
+  - Color swapping between groups with animated transitions
 
 ### State Management
 - Card colors are stored in a Map and sessionStorage
 - Card order is tracked and can be restored
 - Target card for coloring is remembered between clicks
 - Game date tracking prevents stale data between daily puzzles
+- Intelligent color selection for swapping based on right-clicked card
 
 ### Color Management
 - Colors can be applied to individual cards through context menu
 - Individual card colors can be cleared without affecting other cards
 - All colors can be cleared at once with the "Clear All Colors" option
 - Card colors persist across page refreshes via sessionStorage
+- Cards can be mass-recolored by swapping colors between groups
+- Smooth animated transitions when colors are changed or swapped
 
 ## Troubleshooting
 
@@ -141,12 +155,15 @@ This extension:
 
 ## Future Enhancements
 
+- [x] Swap colors between groups
+- [x] Smooth color transition animations
 - [ ] Save color schemes between sessions
 - [ ] Export/import color configurations
 - [ ] Keyboard shortcuts for common actions
 - [ ] Undo/redo functionality
 - [ ] Multiple color schemes
 - [ ] Improved animation compatibility
+- [ ] Auto-sorting cards by color
 
 ---
 
