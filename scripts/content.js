@@ -532,17 +532,6 @@ class ConnectionsHelper {
         draggedCard.firstChild.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
         this.clearDragStyles();
       });
-
-      // Remove native right-click handler since we're using our custom menu
-      // card.addEventListener('contextmenu', (e) => {
-      //   this.currentTarget = card;
-      //   // Also store the card ID in sessionStorage for persistence
-      //   const cardId = card.getAttribute('for');
-      //   const cardText = card.textContent.trim();
-      //   sessionStorage.setItem('connections-helper-target-id', cardId);
-      //   sessionStorage.setItem('connections-helper-target-text', cardText);
-      //   console.log('🎯 Right-clicked on card:', cardText, 'with ID:', cardId);
-      // });
     });
   }
 
