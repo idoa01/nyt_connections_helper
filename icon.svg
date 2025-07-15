@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Reference" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 220.3 220.3" style="enable-background:new 0 0 220.3 220.3;" xmlns:bx="https://boxy-svg.com" width="220.3px" height="220.3px"><defs><bx:export><bx:file format="png"/><bx:file format="svg"/></bx:export></defs><style type="text/css">.st0 { fill: rgb(179, 167, 254); }
+.st1 { fill: rgb(188, 112, 196); stroke: rgb(255, 0, 255); stroke-miterlimit: 10; }
+.st2 { fill: rgb(91, 27, 137); stroke: rgb(255, 0, 255); stroke-miterlimit: 10; }
+.st3 { fill: rgb(206, 195, 234); stroke: rgb(255, 0, 255); stroke-miterlimit: 10; }
+.st4 { fill: rgb(176, 196, 239); }
+.st5 { fill: rgb(249, 223, 109); }
+.st6 { fill: rgb(186, 129, 197); }
+.st7 { fill: rgb(226, 217, 66); }
+.st8 { fill: rgb(160, 195, 90); }
+.st9 { stroke: rgb(0, 0, 0); stroke-width: 0.25; stroke-miterlimit: 10; }
+.st10 { fill: rgb(255, 255, 255); stroke: rgb(0, 0, 0); stroke-width: 0.25; stroke-miterlimit: 10; }
+.st11 { fill: rgb(188, 112, 196); stroke: rgb(0, 0, 0); stroke-width: 0.25; stroke-miterlimit: 10; }</style><rect x="8.041" y="115.65" class="st8" width="204.155" height="41.25" style="stroke-width: 1; paint-order: fill;"/><rect x="11.15" y="63.4" class="st4" width="203.304" height="41.25" style="stroke-width: 1; paint-order: fill;"/><rect x="8.448" y="168.301" class="st5" width="204.155" height="41.25" style="stroke-width: 1; paint-order: fill;"/><rect x="7.552" y="11.6" class="st6" width="203.304" height="41.25" style="stroke-width: 1; paint-order: fill;"/><path d="m 192.65 0.15 h -165 c -15.18 0 -27.5 12.32 -27.5 27.5 v 165 c 0 15.18 12.32 27.5 27.5 27.5 h 165 c 15.18 0 27.5 -12.32 27.5 -27.5 v -165 C 220.15 12.47 207.83 0.15 192.65 0.15 z M 11.15 27.65 c 0 -9.09 7.41 -16.5 16.5 -16.5 h 165 c 9.09 0 16.5 7.41 16.5 16.5 V 52.4 h -198.15 V 27.65 z M 11.15 63.4 H 209.15 v 41.25 H 11.15 V 63.4 z M 11.15 115.6 H 209.15 v 41.25 H 11.15 V 115.6 z M 209.15 192.65 c 0 9.09 -7.41 16.5 -16.5 16.5 h -165 c -9.09 0 -16.5 -7.41 -16.5 -16.5 V 167.9 h 198.15 V 192.65 z"/></svg>
