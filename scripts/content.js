@@ -27,8 +27,8 @@ class ConnectionsHelper {
       green: '#a0c35a', 
       blue: '#b0c4ef',
       purple: '#ba81c5',
-      pink: '#ffc1cc',
       orange: '#ffcba4',
+      turquoise: '#9fe2bf',
       cyan: '#a4e4ff',
       lavender: '#d4a4ff'
     };
@@ -170,8 +170,8 @@ class ConnectionsHelper {
         { id: 'green', title: '🟢 Green (Medium)', color: '#a0c35a' },
         { id: 'blue', title: '🔵 Blue (Hard)', color: '#b0c4ef' },
         { id: 'purple', title: '🟣 Purple (Hardest)', color: '#ba81c5' },
-        { id: 'pink', title: '🩷 Light Pink', color: '#ffc1cc' },
         { id: 'orange', title: '🧡 Light Orange', color: '#ffcba4' },
+        { id: 'turquoise', title: '💚️ Light Turquoise', color: '#9fe2bf' },
         { id: 'cyan', title: '🩵 Light Cyan', color: '#a4e4ff' },
         { id: 'lavender', title: '💜 Light Lavender', color: '#d4a4ff' },
         { id: 'clear', title: '⚪ Clear Color', color: '#ffffff' }

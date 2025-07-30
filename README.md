@@ -6,7 +6,7 @@ A Chrome extension that enhances the NY Times Connections game with color coding
 
 ### 🎨 Color Coding
 - **NY Times Theme Colors**: Yellow (Easy), Green (Medium), Blue (Hard), Purple (Hardest)
-- **Additional Pastel Colors**: Light Pink, Light Orange, Light Cyan, Light Lavender
+- **Additional Pastel Colors**: Light Orange, Light Turquoise, Light Cyan, Light Lavender
 - Right-click any card to assign colors via context menu
 - **Color Swapping**: Easily swap all cards of one color with another
 
@@ -65,8 +65,8 @@ A Chrome extension that enhances the NY Times Connections game with color coding
 - 🟣 **Purple**: Hardest category (#ba81c5)
 
 ### Additional Pastel Colors
-- 🩷 **Light Pink**: (#ffc1cc)
 - 🧡 **Light Orange**: (#ffcba4)
+- 💚️ **Light Turquoise'**: (#9fe2bf)
 - 🩵 **Light Cyan**: (#a4e4ff)
 - 💜 **Light Lavender**: (#d4a4ff)
 
