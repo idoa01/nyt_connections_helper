@@ -3,7 +3,7 @@
   "name": "NY Times Connections Helper",
   "version": "1.0",
   "description": "Color code and organize NY Times Connections game pieces",
-  "permissions": ["activeTab", "contextMenus"],
+  "permissions": ["contextMenus"],
   "host_permissions": ["https://www.nytimes.com/*"],
   "content_scripts": [
     {
