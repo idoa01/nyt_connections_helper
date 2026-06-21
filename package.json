@@ -1,0 +1,22 @@
+{
+  "name": "nyt_connections_helper",
+  "version": "1.0.0",
+  "description": "A Chrome extension that enhances the NY Times Connections game with color coding and drag-and-drop functionality.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFiles": [],
+    "globals": {},
+    "transform": {}
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1"
+  }
+}

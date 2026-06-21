@@ -103,14 +103,21 @@ class ConnectionsHelper {
   addResetButton() {
     if (document.querySelector('.connections-helper-reset-btn')) return;
 
-    const buttonGroup = document.querySelector('[class^="Board-module_boardActionGroup"]');
-    const buttonClass = buttonGroup.children[0].className;
+    const buttonGroup =
+      document.querySelector('[class^="Game-module_boardActionGroup"]') ||
+      document.querySelector('[class^="Board-module_boardActionGroup"]');
+    if (!buttonGroup) return;
+
+    const styleSource =
+      document.querySelector('[data-testid="shuffle-btn"]') ||
+      buttonGroup.querySelector('button');
+    const buttonClass = styleSource ? styleSource.className : '';
 
     const resetBtn = document.createElement('button');
+    resetBtn.type = 'button';
     resetBtn.textContent = '🔄 Reset Order';
-    resetBtn.className = buttonClass + ' connections-helper-reset-btn';
+    resetBtn.className = (buttonClass + ' connections-helper-reset-btn').trim();
     resetBtn.onclick = () => this.resetOrder();
-    //document.body.appendChild(resetBtn);
     buttonGroup.appendChild(resetBtn);
   }
 
@@ -877,9 +884,13 @@ const observer = new MutationObserver((mutations) => {
       initialized = true;
       console.log('🔄 NY Times Connections Helper re-initialized');
     } else {
-      // If already initialized, just refresh the drag and drop functionality
-      // This ensures we have event listeners on any new cards
-      ConnectionsHelper.getInstance().setupDragAndDrop();
+      // Refresh drag-and-drop and re-attempt any UI controls that may have
+      // been skipped during an earlier initialization because the action group
+      // was not yet present.
+      const helper = ConnectionsHelper.getInstance();
+      helper.setupDragAndDrop();
+      helper.addResetButton();
+      helper.addStatusIndicator();
       console.log('🔄 Refreshed drag and drop functionality');
     }
   } else {
